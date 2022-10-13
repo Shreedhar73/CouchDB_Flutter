@@ -24,9 +24,11 @@ class ConnectivityController{
     Connectivity().onConnectivityChanged.listen((ConnectivityResult result)async {
       if (result == ConnectivityResult.mobile || result == ConnectivityResult.wifi) {
        var x = await RemoteService().getDataStoredInBox();
-      if(x != null ) {
-        await RemoteService().addDataOffline(x);
-        x = null;
+      if(x[1] != null ) {
+        //  WidgetsBinding.instance!.addPostFrameCallback((_)async => await RemoteService().addDataOffline(x[1]['doc']));
+        
+        x[1].forEach((e) async => await RemoteService().addDataOffline(e['doc'])); 
+        
       }else{}
       online.value = true;
       await RemoteService().getData();

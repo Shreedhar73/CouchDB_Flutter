@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_typing_uninitialized_variables
+
 import 'dart:convert';
 import 'dart:developer';
 
@@ -5,7 +7,7 @@ import 'dart:developer';
 import 'package:couchdb_test/widgets/toastmessage.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
-import 'package:couchdb_test/models/data_model.dart';
+// import 'package:couchdb_test/models/data_model.dart';
 import 'package:path_provider/path_provider.dart';
 
 class RemoteService {
@@ -21,7 +23,7 @@ class RemoteService {
     box = await Hive.openBox('data');
     return;
   }
-  var savedData;
+  List savedData = [] ;
   
   
   getData()async{
@@ -33,16 +35,16 @@ class RemoteService {
       headers: {'authorization': authHeader},
     );
     if(response.statusCode == 200){
-      await box!.put(0, response.body);
-      var data = dbDataFromJson(response.body);
-      mainList = data.rows as List;
+      var rawResponse = response.body;
+      await box!.put(0,jsonDecode(rawResponse)['rows']);
+      var data = jsonDecode(rawResponse)['rows'];
+      mainList = data as List;
       return mainList;
     }
     } catch(e){
       log(e.toString());
-      var data = box!.get(0);
-      
-      return dbDataFromJson(data).rows;
+      var data = await getDataStoredInBox();
+      return List<dynamic>.from(data[0]);
     }
   }
 
@@ -71,7 +73,12 @@ class RemoteService {
     } catch (e){
       log(e.toString());
       box!.put(1,
-      jsonEncode({
+     {
+      "value" : {
+        "name" : name,
+        "email": email,
+      },
+      "doc" : {
           "name": name,
           "email": email,
           "address":{
@@ -80,26 +87,48 @@ class RemoteService {
             "city": city
           },
           "country": country,
-        }));
+        }
+      }
+      );
         showToastMessage('Data Added');
     }
   }
   
   getDataStoredInBox() async {
     await openBox();
-    savedData = box!.get(1);
-    box!.delete(1);
-    return savedData;
+    // savedData = [];
+    var oldData = box!.get(0);
+    var boxData = box!.get(1);
+    boxData != null ? savedData.add( box!.get(1)) : null;
+    if(savedData != null) { 
+      // oldData.add(savedData);
+      savedData.forEach((element) {
+        oldData.add(element);
+      });
+     
+    }
+    // box!.delete(1);
+    return [oldData,savedData];
   }
   addDataOffline(encodedData)async{
     try{
      await getUUID();
       var response = await client.put(Uri.parse('$baseURL/test1/$uuid'),
         headers: {'authorization': authHeader},
-        body: encodedData
+        body: jsonEncode({
+          "name": encodedData['name'],
+          "email": encodedData['email'],
+          "address":{
+            "country": encodedData['country'],
+            "zone": encodedData['zone'],
+            "city": encodedData['city']
+          },
+          "country": encodedData['country'],
+        })
       );
       if(response.statusCode == 201){
         showToastMessage('Data Added');
+        savedData = [];
         box!.delete(1);
       }} catch(e){
         log(e.toString());

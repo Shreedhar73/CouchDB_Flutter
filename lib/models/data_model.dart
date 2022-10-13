@@ -40,6 +40,8 @@ class DbData {
      
 }
 
+Row rowFromJson(String str) => Row.fromJson(json.decode(str));
+
 class Row {
     Row({
         this.id,

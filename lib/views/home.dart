@@ -101,7 +101,7 @@ class _HomePageState extends State<HomePage> {
   _buildDataList(context,data){
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: data.length,
+      itemCount: data == null ? 0 : data.length,
       itemBuilder: (context,index){
         return itemTile(data[index]);
       },
@@ -132,14 +132,14 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(data.value.name),
-                Text(data.value.email),
+                Text(data['value']['name']),
+                Text(data['value']['email']),
               ],
             ),
             const Spacer(),
             IconButton(
               onPressed: (){
-                _homeBloc.add(DeleteDataEvent(docID: data.doc.id,revID: data.doc.rev));
+                _homeBloc.add(DeleteDataEvent(docID: data['doc']['_id'],revID: data['doc']['_rev']));
               }, 
               icon: const Icon(Icons.delete,color: red,size: 30,) 
             ) 

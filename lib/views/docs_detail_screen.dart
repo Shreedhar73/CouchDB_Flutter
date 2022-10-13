@@ -24,20 +24,20 @@ class _DocsDetailPageState extends State<DocsDetailPage> {
 
   @override
   void initState() {
-    nameCon.text = widget.data.doc.name;
-    emailCon.text = widget.data.doc.email;
-    countryCon.text = widget.data.doc.country;
+    nameCon.text = widget.data['doc']['name'];
+    emailCon.text = widget.data['doc']['email'];
+    countryCon.text = widget.data['doc']['country'];
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    var data = widget.data.doc;
+    var data = widget.data['doc'];
     final HomeBloc _homeBloc = BlocProvider.of<HomeBloc>(context);
     return Scaffold(
       appBar: AppBar(
          backgroundColor: Colors.black,
-        title: Text(widget.data.doc.name ?? ''),
+        title: Text(widget.data['doc']['name'] ?? ''),
       ),
 
       body: SingleChildScrollView(
@@ -52,7 +52,7 @@ class _DocsDetailPageState extends State<DocsDetailPage> {
               customTextFormField(countryCon, 'Country'),
               const SizedBox(height: 20,),
               SubmitButton(text: 'Update', onPressed: (){
-                _homeBloc.add(UpdateDocumentEvent(docID: data.id,rev: data.rev,name: nameCon.text,email: emailCon.text,country: countryCon.text,city: data.address.city??''));
+                _homeBloc.add(UpdateDocumentEvent(docID: data['_id'],rev: data['_rev'],name: nameCon.text,email: emailCon.text,country: countryCon.text,city: data['address']['city']??''));
 
               }, bgColor: black, fontColor: white)
 
